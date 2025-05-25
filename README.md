@@ -2,6 +2,10 @@
 
 Simple but extensible storage library for Typescript.
 
+```
+npm i easy-persist
+```
+
 ## Using default storage
 
 Default storage serializes data using `JSON.stringify` and stores it in `data/default.json` file.
