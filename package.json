@@ -2,11 +2,13 @@
   "name": "easy-persist",
   "version": "1.0.0",
   "main": "dist/index.js",
-	"typings": "dist/index.d.ts",
+  "typings": "dist/index.d.ts",
   "engines": {
     "node": ">=22"
   },
   "scripts": {
+    "prepublishOnly": "npm run clean && npm run build",
+		"clean": "rimraf dist/",
     "build": "tsc",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -15,14 +17,14 @@
   "description": "",
   "devDependencies": {
     "@types/node": "^22.15.18",
+    "rimraf": "^6.0.1",
     "typescript": "^5.8.3"
   },
-  "dependencies": {},
   "bugs": {
-		"url": "https://github.com/rlqd/easy-persist/issues"
-	},
-	"repository": {
-		"url": "https://github.com/rlqd/easy-persist",
-		"type": "git"
-	}
+    "url": "https://github.com/rlqd/easy-persist/issues"
+  },
+  "repository": {
+    "url": "https://github.com/rlqd/easy-persist",
+    "type": "git"
+  }
 }
