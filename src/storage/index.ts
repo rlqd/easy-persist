@@ -1,6 +1,11 @@
 
-export abstract class AbstractStorageFactory {
-    public abstract create<T>(entityName: string): AbstractStorage<T>;
+export interface StorageFactoryInterface {
+    listNames(): Promise<string[]>;
+}
+
+export abstract class AbstractStorageFactory implements StorageFactoryInterface {
+    public abstract create<T>(name: string): AbstractStorage<T>;
+    public abstract listNames(): Promise<string[]>;
 }
 
 export abstract class AbstractStorage<T> {

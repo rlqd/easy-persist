@@ -2,6 +2,10 @@ import * as path from 'path';
 import * as fs from 'fs/promises';
 import { AbstractStorage, AbstractStorageFactory } from ".";
 
+function isErrorCode(e: unknown, code: string) {
+    return e && typeof e === 'object' && 'code' in e && e.code === code;
+}
+
 export default class FileStorageFactory extends AbstractStorageFactory {
     constructor(
         private baseDir: string,
@@ -22,10 +26,46 @@ export default class FileStorageFactory extends AbstractStorageFactory {
             this.fileEncoding,
         );
     }
-}
 
-function isErrorCode(e: unknown, code: string) {
-    return e && typeof e === 'object' && 'code' in e && e.code === code;
+    public async listNames(): Promise<string[]> {
+        return await this.listFilesRecursive(this.baseDir, '.' + this.fileExtension);
+    }
+
+    private async listFilesRecursive(dir: string, extension: string, root: string = dir): Promise<string[]> {
+        let results: string[] = [];
+
+        let list: string[];
+        try {
+            list = await fs.readdir(dir);
+        } catch (e) {
+            if (isErrorCode(e, 'ENOENT')) {
+                return results;
+            }
+            throw e;
+        }
+
+        for (const file of list) {
+            const fullPath = path.join(dir, file);
+
+            let stat;
+            try {
+                stat = await fs.stat(fullPath);
+            } catch (e) {
+                if (isErrorCode(e, 'ENOENT')) {
+                    continue;
+                }
+                throw e;
+            }
+
+            if (stat.isDirectory()) {
+                results = results.concat(await this.listFilesRecursive(fullPath, extension, dir));
+            } else if (path.extname(file) === extension) {
+                results.push(fullPath.slice(root.length + 1, -extension.length).replaceAll('\\', '/'));
+            }
+        }
+
+        return results;
+    }
 }
 
 export class FileStorage<T> extends AbstractStorage<T> {

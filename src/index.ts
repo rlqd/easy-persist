@@ -1,4 +1,4 @@
-import type { AbstractStorage, AbstractStorageFactory } from "./storage";
+import type { AbstractStorage, AbstractStorageFactory, StorageFactoryInterface } from "./storage";
 import FileStorageFactory from "./storage/file-storage";
 
 export interface Config {
@@ -28,6 +28,10 @@ export default class Persist<T> {
         return Persist.defaultInstance as Persist<T>;
     }
 
+    public static getDefaultFactory(): StorageFactoryInterface {
+        return this.defaultConfig.storageFactory;
+    }
+
     private config: Config = Persist.defaultConfig;
     private storage: AbstractStorage<T>;
 
@@ -38,6 +42,10 @@ export default class Persist<T> {
     ) {
         this.config = {...this.config, ...config};
         this.storage = this.config.storageFactory.create(name);
+    }
+
+    public getFactory(): StorageFactoryInterface {
+        return this.config.storageFactory;
     }
 
     public async get(): Promise<T|undefined> {

@@ -53,6 +53,8 @@ Any number of storages can be created.
 In this example, data will be saved to file `data/animal.json`.
 
 ```typescript
+import Persist from 'easy-persist';
+
 interface Animal {
     type: 'cat' | 'dog';
     name: string;
@@ -73,7 +75,7 @@ There is no data validation by default, but it can be configured (e.g. using `zo
 By default data validation only applies to `get` method, but it can be configured for `set`, see [Configuration](#configuration).
 
 ```typescript
-import { persist, obtain } from 'easy-persist';
+import Persist from 'easy-persist';
 import { z } from "zod/v4";
 
 const animalSchema = z.object({
@@ -89,6 +91,23 @@ async function example() {
     await p.set({type: 'dog', name: 'Cookie'});
     const animal: Animal|undefined = await p.get();
     console.log(animal?.name); // Cookie
+}
+```
+
+### Listing names
+
+```typescript
+import Persist from 'easy-persist';
+
+const foo = new Persist<string>('foo');
+const bar = new Persist<string>('bar');
+
+async function example() {
+    await foo.set('Hello');
+    await bar.set('World');
+
+    const names: string[] = await Persist.getDefaultFactory().listNames(); // or foo.getFactory().listNames()
+    console.log(names); // ['foo', 'bar']
 }
 ```
 
@@ -130,8 +149,9 @@ const animalSchema = z.object({
     name: z.string(),
 });
 
+const customFactory = new FileStorageFactory('/opt/my-app-data');
 const p = new Persist('animal', animalSchema.parse, {
-    storageFactory: new FileStorageFactory('/opt/my-app-data'),
+    storageFactory: customFactory,
     validateSet: true, // To validate value on "set" as well
 });
 
@@ -143,4 +163,7 @@ p.set({type: 'cat', name: 'Fluffy'})
 p.set({something: 'else'} as any)
     .catch(() => console.error('Oh, no!'));
 
+// Configured factory can be used directly to list instances with existing data
+customFactory.listNames()
+    .then(console.log) // ['animal']
 ```
