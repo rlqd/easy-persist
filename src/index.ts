@@ -64,6 +64,9 @@ export default class Persist<T> {
     }
 }
 
+
+// Default storage one-line helpers
+
 export async function persist<T>(value?: T): Promise<void> {
     return await Persist.getDefaultInstance<T>().set(value);
 }
@@ -75,3 +78,8 @@ export async function obtain<T>(validator?: (value: T) => T): Promise<T|undefine
     }
     return value;
 }
+
+
+// Built-in storage factories
+
+export { default as FileStorageFactory } from "./storage/file-storage";

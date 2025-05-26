@@ -119,8 +119,7 @@ Storage factory can be changed to affect how and where data is stored.
 
 ```typescript
 import { persist } from 'easy-persist';
-import Persist from 'easy-persist';
-import FileStorageFactory from 'easy-persist/storage/file-storage';
+import Persist, { FileStorageFactory } from 'easy-persist';
 
 // Must be called before using default storage
 Persist.setDefaults({
@@ -141,8 +140,7 @@ persist({text: 'Hello, World!'})
 Each storage can be configured separately as well.
 
 ```typescript
-import Persist from 'easy-persist';
-import FileStorageFactory from 'easy-persist/storage/file-storage';
+import Persist, { FileStorageFactory } from 'easy-persist';
 
 const animalSchema = z.object({
     type: z.union([z.literal('cat'), z.literal('dog')]),
