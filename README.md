@@ -130,7 +130,7 @@ const animalSchema = z.object({
     name: z.string(),
 });
 
-const Persist = new Persist('animal', animalSchema.parse, {
+const p = new Persist('animal', animalSchema.parse, {
     storageFactory: new FileStorageFactory('/opt/my-app-data'),
     validateSet: true, // To validate value on "set" as well
 });
@@ -139,7 +139,7 @@ const Persist = new Persist('animal', animalSchema.parse, {
 p.set({type: 'cat', name: 'Fluffy'})
     .then(() => console.log('Done!'));
 
-// Will fail when vlidateSet is true
+// Will fail when validateSet is true
 p.set({something: 'else'} as any)
     .catch(() => console.error('Oh, no!'));
 
