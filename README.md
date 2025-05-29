@@ -32,7 +32,7 @@ Example using `zod` library:
 
 ```typescript
 import { persist, obtain } from 'easy-persist';
-import { z } from "zod/v4";
+import z from "zod";
 
 const myStorageSchema = z.object({
     text: z.string(),
@@ -76,7 +76,7 @@ By default data validation only applies to `get` method, but it can be configure
 
 ```typescript
 import Persist from 'easy-persist';
-import { z } from "zod/v4";
+import z from "zod";
 
 const animalSchema = z.object({
     type: z.union([z.literal('cat'), z.literal('dog')]),
@@ -85,7 +85,7 @@ const animalSchema = z.object({
 type Animal = z.infer<typeof animalSchema>;
 
 // Generic type is inferred from the validator
-const p = new Persist('animal', animalSchema.parse);
+const p = new Persist('animal', { validator: animalSchema.parse });
 
 async function example() {
     await p.set({type: 'dog', name: 'Cookie'});
@@ -148,7 +148,8 @@ const animalSchema = z.object({
 });
 
 const customFactory = new FileStorageFactory('/opt/my-app-data');
-const p = new Persist('animal', animalSchema.parse, {
+const p = new Persist('animal', {
+    validator: animalSchema.parse,
     storageFactory: customFactory,
     validateSet: true, // To validate value on "set" as well
 });

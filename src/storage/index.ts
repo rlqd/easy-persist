@@ -4,11 +4,11 @@ export interface StorageFactoryInterface {
 }
 
 export abstract class AbstractStorageFactory implements StorageFactoryInterface {
-    public abstract create<T>(name: string): AbstractStorage<T>;
+    public abstract create(name: string): AbstractStorage;
     public abstract listNames(): Promise<string[]>;
 }
 
-export abstract class AbstractStorage<T> {
-    public abstract get(): Promise<T|undefined>;
-    public abstract set(value: T|undefined): Promise<void>;
+export abstract class AbstractStorage {
+    public abstract get(): Promise<unknown>;
+    public abstract set(value: unknown): Promise<void>;
 }
