@@ -253,7 +253,7 @@ console.log(record.value.exampleNumber); // will output a random number
 
 ### Cached Repository
 
-All records can be preloaded in memory at once, which allows getting records and iterative over them synchronously.
+All records can be preloaded in memory at once, which allows getting records and iterating over them synchronously.
 
 ```typescript
 import Persist from 'easy-persist';
