@@ -1,14 +1,7 @@
 
-export interface StorageFactoryInterface {
-    listNames(): Promise<string[]>;
-}
+export type { StorageFactoryInterface } from "./common";
+export { AbstractStorageFactory } from "./common";
 
-export abstract class AbstractStorageFactory implements StorageFactoryInterface {
-    public abstract create(name: string): AbstractStorage;
-    public abstract listNames(): Promise<string[]>;
-}
-
-export abstract class AbstractStorage {
-    public abstract get(): Promise<unknown>;
-    public abstract set(value: unknown): Promise<void>;
-}
+// Built-in implementations
+export { FileStorageFactory } from "./file-storage";
+export { MemoryStorageFactory } from "./memory-storage";

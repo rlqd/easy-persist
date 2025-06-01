@@ -1,16 +1,10 @@
-import type { AbstractStorage, AbstractStorageFactory, StorageFactoryInterface } from "./storage";
+import type { Config, InstanceConfig } from './config';
+import type { AbstractStorage, StorageFactoryInterface } from "./storage/common";
 import { FileStorageFactory } from "./storage/file-storage";
-
-export interface Config {
-    storageFactory: AbstractStorageFactory,
-    validateGet: boolean,
-    validateSet: boolean,
-    defaultName: string,
-}
-
-export interface InstanceConfig<T> extends Config {
-    validator?: (value: unknown) => T,
-}
+import { Repository } from './repository/repository';
+import { CachedRepository } from './repository/cached-repository';
+import type { RepositoryConfig } from './repository/common';
+import { GenericRecord, type AbstractRecord, type AbstractRecordConstructor } from './repository/record';
 
 const builtInDefaults: Config = {
     storageFactory: new FileStorageFactory('data'),
@@ -44,11 +38,31 @@ export default class Persist<T> {
         return this.defaultConfig.storageFactory;
     }
 
+    public static getRepo<T, R extends AbstractRecord<T> = GenericRecord<T>>(
+        config: Partial<RepositoryConfig<T, R>> = {},
+    ): Repository<T, R> {
+        return new Repository<T, R>({
+            ...this.defaultConfig,
+            ...config,
+            recordClass: config.recordClass ?? (GenericRecord as AbstractRecordConstructor<T,R>),
+        });
+    }
+
+    public static async preloadRepo<T, R extends AbstractRecord<T> = GenericRecord<T>>(
+        config: Partial<RepositoryConfig<T, R>> = {},
+    ): Promise<CachedRepository<T, R>> {
+        return await CachedRepository.preload({
+            ...this.defaultConfig,
+            ...config,
+            recordClass: config.recordClass ?? (GenericRecord as AbstractRecordConstructor<T,R>),
+        });
+    }
+
     private config: InstanceConfig<T> = Persist.defaultConfig;
     private storage: AbstractStorage;
 
     constructor(
-        name: string,
+        private name: string,
         config: Partial<InstanceConfig<T>> = {},
     ) {
         this.config = {...this.config, ...config};
@@ -57,6 +71,10 @@ export default class Persist<T> {
 
     public getFactory(): StorageFactoryInterface {
         return this.config.storageFactory;
+    }
+
+    public getName(): string {
+        return this.name;
     }
 
     public async get(): Promise<T|undefined> {
@@ -74,10 +92,10 @@ export default class Persist<T> {
         if (this.config.validateSet && this.config.validator && typeof value !== 'undefined') {
             value = this.config.validator(value);
         }
-        return await this.storage.set(value);
+        await this.storage.set(value);
+        this.config.onChange && this.config.onChange(value);
     }
 }
-
 
 // Default instance one-line helpers
 
@@ -92,9 +110,3 @@ export async function obtain<T>(validator?: (value: unknown) => T): Promise<T|un
     }
     return value;
 }
-
-
-// Built-in storage factories
-
-export { FileStorageFactory } from "./storage/file-storage";
-export { MemoryStorageFactory } from "./storage/memory-storage";

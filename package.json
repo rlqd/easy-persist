@@ -1,8 +1,28 @@
 {
   "name": "easy-persist",
   "version": "2.0.0",
-  "main": "dist/index.js",
-  "typings": "dist/index.d.ts",
+  "exports": {
+    ".": "./dist/index.js",
+    "./config": "./dist.config.js",
+    "./storage": "./dist/storage/index.js",
+    "./repository": "./dist/repository/index.js"
+  },
+  "typesVersions": {
+    "*": {
+      ".": [
+        "./dist/index.d.ts"
+      ],
+      "./config": [
+        "./dist/config.d.ts"
+      ],
+      "./storage": [
+        "./dist/storage/index.d.ts"
+      ],
+      "./repository": [
+        "./dist/repository/index.d.ts"
+      ]
+    }
+  },
   "engines": {
     "node": ">=22"
   },
@@ -19,6 +39,7 @@
   "description": "",
   "devDependencies": {
     "@types/node": "^22.15.18",
+    "lru-cache": "^11.1.0",
     "rimraf": "^6.0.1",
     "typescript": "^5.8.3",
     "zod": "^3.25.30"

@@ -3,7 +3,7 @@ import { describe, it } from 'node:test';
 import { randomUUID } from 'node:crypto';
 import fs from 'node:fs/promises';
 
-import { FileStorageFactory } from '../../src';
+import { FileStorageFactory } from '../../src/storage';
 
 describe('FileStorage', () => {
     it('should handle basic scenario with defaults', async () => {

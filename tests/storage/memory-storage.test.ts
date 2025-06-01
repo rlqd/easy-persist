@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 
-import { MemoryStorageFactory } from '../../src';
+import { MemoryStorageFactory } from '../../src/storage';
 
 describe('MemoryStorage', () => {
     it('should handle basic scenario', async () => {

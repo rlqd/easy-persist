@@ -4,7 +4,8 @@ import { randomUUID } from 'node:crypto';
 import fs from 'node:fs/promises';
 import z from 'zod';
 
-import Persist, { FileStorageFactory } from '../src';
+import Persist from '../src';
+import { FileStorageFactory } from '../src/storage';
 
 describe('Custom Persist Instances', () => {
     beforeEach(() => Persist.restoreBuiltInDefaults());
@@ -55,6 +56,19 @@ describe('Custom Persist Instances', () => {
 
         const data = await p.get();
         assert.deepEqual(data, {greetings: 'Hola!'});
+    });
+
+    it('calls onChange handler', async () => {
+        let changedValue;
+        const p = new Persist<{greetings:string}>('test-onchange', {
+            onChange: value => {
+                changedValue = value;
+            },
+        });
+        await p.set({greetings: 'Hola!'});
+        assert.deepStrictEqual(changedValue, {greetings: 'Hola!'});
+        await p.set(undefined);
+        assert.strictEqual(changedValue, undefined);
     });
 
     it('applies the validator on get', async () => {

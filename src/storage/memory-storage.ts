@@ -1,4 +1,4 @@
-import { AbstractStorage, AbstractStorageFactory } from ".";
+import { AbstractStorage, AbstractStorageFactory } from "./common";
 
 /**
  * Doesn't persist and keeps everything in memory, which is separate per each factory.

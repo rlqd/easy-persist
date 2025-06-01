@@ -1,6 +1,6 @@
 import * as path from 'path';
 import * as fs from 'fs/promises';
-import { AbstractStorage, AbstractStorageFactory } from ".";
+import { AbstractStorage, AbstractStorageFactory } from "./common";
 
 export type FileStorageFactoryConfig = {
     fileExtension: string;
@@ -17,9 +17,9 @@ const defaultConfig: FileStorageFactoryConfig = {
     fileNameHandler: 'escape',
 };
 
-export type FileNameHandler = {
-    encode: (value: string) => string,
-    decode: (value: string) => string,
+export interface FileNameHandler {
+    encode: (value: string) => string;
+    decode: (value: string) => string;
 };
 export type FileNameTreatment = 'escape' | 'base64url';
 const fileNameHandlers: Record<FileNameTreatment, FileNameHandler> = {

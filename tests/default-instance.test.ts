@@ -4,7 +4,8 @@ import { randomUUID } from 'node:crypto';
 import fs from 'node:fs/promises';
 import z from 'zod';
 
-import Persist, { persist, obtain, FileStorageFactory } from '../src';
+import Persist, { persist, obtain } from '../src';
+import { FileStorageFactory } from '../src/storage';
 
 describe('Default Persist Instance', () => {
     beforeEach(() => Persist.restoreBuiltInDefaults());
