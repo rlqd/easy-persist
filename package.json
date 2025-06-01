@@ -45,10 +45,10 @@
     "zod": "^3.25.30"
   },
   "bugs": {
-    "url": "https://github.com/rlqd/easy-persist/issues"
+    "url": "https://github.com/easy-persist/easy-persist/issues"
   },
   "repository": {
-    "url": "https://github.com/rlqd/easy-persist",
+    "url": "https://github.com/easy-persist/easy-persist",
     "type": "git"
   },
   "keywords": [
