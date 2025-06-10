@@ -1,6 +1,6 @@
 {
   "name": "easy-persist",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "exports": {
     ".": "./dist/index.js",
     "./config": "./dist.config.js",
@@ -42,6 +42,7 @@
     "lru-cache": "^11.1.0",
     "rimraf": "^6.0.1",
     "typescript": "^5.8.3",
+    "yaml": "^2.8.0",
     "zod": "^3.25.30"
   },
   "bugs": {

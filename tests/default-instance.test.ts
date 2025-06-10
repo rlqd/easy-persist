@@ -2,9 +2,8 @@ import assert from 'node:assert/strict';
 import { describe, it, beforeEach } from 'node:test';
 import { randomUUID } from 'node:crypto';
 import fs from 'node:fs/promises';
-import z from 'zod';
 
-import Persist, { persist, obtain } from '../src';
+import Persist, { persist, obtain, record } from '../src';
 import { FileStorageFactory } from '../src/storage';
 
 describe('Default Persist Instance', () => {
@@ -44,38 +43,35 @@ describe('Default Persist Instance', () => {
         assert.deepEqual(data, {greetings: 'Hola!'});
     });
 
-    it('applies the validator', async () => {
-        await persist({beep: 'boop'});
-
-        const validator = (v: unknown) => {
-            if (typeof v !== 'object' || v === null || !('beep' in v) || typeof v?.beep !== 'string') {
-                throw new Error('Validation failed');
-            }
-            return v;
-        };
-
-        const data = await obtain(validator);
-        assert.equal(data?.beep, 'boop');
-
-        await persist({something: 'else'});
-        await obtain(validator)
-            .then(() => assert.equal(true, false, 'must not succeed'))
-            .catch(e => assert.equal(e?.message, 'Validation failed'));
-    });
-
-    it('works with zod as a validator', async () => {
-        await persist({beep: 'boop'});
-
-        const schema = z.object({
-            beep: z.string(),
+    it('returns undefined record when there is no data', async () => {
+        Persist.setDefaults({
+            defaultName: 'not-existing-record',
         });
 
-        const data = await obtain(schema.parse)
-        assert.equal(data?.beep, 'boop');
+        const rec = await record<{text: string}>();
+        assert.strictEqual(rec, undefined);
+    });
 
-        await persist({something: 'else'});
-        await obtain(schema.parse)
-            .then(() => assert.equal(true, false, 'must not succeed'))
-            .catch(e => assert.equal(e?.issues?.[0]?.code, 'invalid_type'));
+    it('returns record with default value when there is no data', async () => {
+        Persist.setDefaults({
+            defaultName: 'not-existing-record',
+        });
+
+        const rec = await record({text: 'Hello, World!'});
+        assert.notEqual(typeof rec, 'undefined');
+        assert.equal(rec.value.text, 'Hello, World!');
+        assert.equal(rec.ephemeral, true);
+    });
+
+    it('returns record with existing data', async () => {
+        Persist.setDefaults({
+            defaultName: 'some-record',
+        });
+        await persist({text: 'Bye!'});
+
+        const rec = await record({text: 'Hello, World!'});
+        assert.notEqual(typeof rec, 'undefined');
+        assert.equal(rec.value.text, 'Bye!');
+        assert.equal(rec.ephemeral, false);
     });
 });

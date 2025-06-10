@@ -32,27 +32,32 @@ async function example() {
 
 If file doesn't exist, `obtain` will return `undefined`.
 
-### Data validation
+### Using default record
 
-There is no data validation by default, but it can be configured by passing a validator function.
+Managing your data is easier using record (to pass it around and let other parts of code update it).
 
-Validator is simply a function, which accepts and returns the same type, and throws errors if anything is wrong.
-
-Example using `zod` library:
+If you need multiple records, see [repositories](#repositories).
 
 ```typescript
-import { persist, obtain } from 'easy-persist';
-import z from "zod";
+import { record } from 'easy-persist';
 
-const myStorageSchema = z.object({
-    text: z.string(),
-});
-type MyStorage = z.infer<typeof myStorageSchema>;
+interface AppConfig {
+    foo: string;
+    bar: number;
+}
 
 async function example() {
-    await persist<MyStorage>({ text: 'Hello, World!' });
-    const value = await obtain(myStorageSchema.parse);
-    console.log(value?.text);
+    // you can optionally specify default value
+    const appConfig = await record<AppConfig>({
+        foo: 'hello',
+        bar: 42,
+    });
+
+    // value can be accessed synchronously once the record was loaded
+    console.log(appConfig.value.foo);
+
+    // object values can be partially updated
+    await appConfig.update({bar: 123});
 }
 ```
 
@@ -130,16 +135,21 @@ Storage factory can be changed to affect how and where data is stored.
 ```typescript
 import Persist, { persist } from 'easy-persist';
 import { FileStorageFactory } from 'easy-persist/storage';
+import * as yaml from 'yaml';
 
 // Must be called before using default storage
 Persist.setDefaults({
     // Set name for default storage
     defaultName: 'greetings',
-    // Set file storage in current directory
-    storageFactory: new FileStorageFactory('.'),
+    // Set file storage in current directory and change format to yaml
+    storageFactory: new FileStorageFactory('.', {
+        serializer: v => Buffer.from(yaml.stringify(v), 'utf-8'),
+        deserializer: b => yaml.parse(b.toString('utf-8')),
+        fileExtension: 'yml',
+    }),
 });
 
-// Will be saved to './greetings.json'
+// Will be saved to './greetings.yml'
 persist({text: 'Hello, World!'})
     .then(() => console.log('Done!'));
 
@@ -282,13 +292,13 @@ const newRecord = await repo.create('message-456', {
 });
 
 // Or ephemeral record can be created
-const newRecord2 = repo.createEphemeral('message-457', {
+const newRecord2 = repo.createEphemeral('message-789', {
     from: 'Alice',
     to: 'Bob',
     text: 'Hey',
 });
 // It won't be discoverable, until it's saved
-console.log(repo.get('message-457')); // undefined
+console.log(repo.get('message-789')); // undefined
 await newRecord2.save();
-console.log(repo.get('message-457')?.value?.text); // "Hey"
+console.log(repo.get('message-789')?.value?.text); // "Hey"
 ```

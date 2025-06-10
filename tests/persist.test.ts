@@ -2,7 +2,6 @@ import assert from 'node:assert/strict';
 import { describe, it, beforeEach } from 'node:test';
 import { randomUUID } from 'node:crypto';
 import fs from 'node:fs/promises';
-import z from 'zod';
 
 import Persist from '../src';
 import { FileStorageFactory } from '../src/storage';
@@ -106,24 +105,5 @@ describe('Custom Persist Instances', () => {
         await p.set({something: 'else'} as any)
             .then(() => assert.equal(true, false, 'must not succeed'))
             .catch(e => assert.equal(e?.message, 'Validation failed'));
-    });
-
-    it('works with zod as a validator', async () => {
-        const schema = z.object({
-            beep: z.string(),
-        });
-
-        const p = new Persist('something', { validator: schema.parse });
-        await p.set({beep: 'boop'});
-
-        const data = await p.get();
-        assert.equal(data?.beep, 'boop');
-
-        await fs.writeFile('data/something.json', JSON.stringify({something: 'else'}));
-
-        // we have malformed data in the file, which must not load
-        await p.get()
-            .then(() => assert.equal(true, false, 'must not succeed'))
-            .catch(e => assert.equal(e?.issues?.[0]?.code, 'invalid_type'));
     });
 });

@@ -103,10 +103,20 @@ export async function persist<T>(value?: T): Promise<void> {
     return await Persist.getDefaultInstance<T>().set(value);
 }
 
-export async function obtain<T>(validator?: (value: unknown) => T): Promise<T|undefined> {
-    const value = await Persist.getDefaultInstance<T>().get();
-    if (validator && typeof value !== 'undefined') {
-        return validator(value);
+export async function obtain<T>(): Promise<T|undefined> {
+    return await Persist.getDefaultInstance<T>().get();
+}
+
+export async function record<T>(defaultValue: T): Promise<GenericRecord<T>>;
+export async function record<T>(defaultValue?: T): Promise<GenericRecord<T>|undefined>;
+export async function record<T>(defaultValue?: T): Promise<GenericRecord<T>|undefined> {
+    const persist = Persist.getDefaultInstance<T>();
+    const value = await persist.get();
+    if (typeof value === 'undefined') {
+        if (typeof defaultValue !== 'undefined') {
+            return new GenericRecord<T>(persist, defaultValue, true);
+        }
+        return undefined;
     }
-    return value;
+    return new GenericRecord<T>(persist, value, false);
 }
